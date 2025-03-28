@@ -2,7 +2,7 @@
 
 	
 	<body>
-		<input asp-for="Movie.MovieID" hidden/>
+	<input asp-for="Movie.MovieID" hidden />
 		<div class="container">
 			<!-- Section 1: Movie Information -->
 			<section id="movie-info" class="row mb-5">
@@ -11,7 +11,7 @@
 					<img src="@Model.Movie.MovieImage" alt="Movie Poster" class="img-fluid" />
 				</div> 
 				<div class="col-md-8">
-					<h1>@Model.Movie.Title</h1>
+					<h1 id="title-movie">@Model.Movie.Title</h1>
 					<!--<p><strong>Director:</strong> Director Name</p> -->
 					<!--<p><strong>Cast:</strong> Actor 1, Actor 2, Actor 3</p> -->
 					<p><strong>Genre:</strong>  @Model.Movie.Genre</p>
@@ -59,7 +59,7 @@
 					<div class="col-md-4 mt-3">
 						<label for="time">Choose time</label>
 						<select id="time" class="form-control">
-							<option>-- Select a Time --</option>
+							<option value="">-- Select a Time --</option>
 						</select>
 					</div>
 				</div>

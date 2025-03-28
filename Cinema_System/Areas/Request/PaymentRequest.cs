@@ -4,7 +4,7 @@ namespace Cinema_System.Areas.Request
 {
     public class PaymentRequest
     {
-        public int OrderCode { get; set; }  // ✅ Mã đơn hàng
+        public long OrderCode { get; set; }  // ✅ Mã đơn hàng
         public int TotalAmount { get; set; }  // ✅ Tổng tiền
         public string Description { get; set; } = string.Empty; // ✅ Mô tả thanh toán
         public List<SeatSelectedRequest> Seats { get; set; } = new List<SeatSelectedRequest>(); // ✅ Ghế ngồi

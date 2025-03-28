@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinema.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250327160604_dbs")]
-    partial class dbs
+    [Migration("20250327101507_dbs3")]
+    partial class dbs3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -312,8 +312,8 @@ namespace Cinema.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderDetailID"));
 
-                    b.Property<int>("OrderID")
-                        .HasColumnType("int");
+                    b.Property<long>("OrderID")
+                        .HasColumnType("bigint");
 
                     b.Property<double>("Price")
                         .HasColumnType("float");
@@ -340,11 +340,8 @@ namespace Cinema.DataAccess.Migrations
 
             modelBuilder.Entity("Cinema.Models.OrderTable", b =>
                 {
-                    b.Property<int>("OrderID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderID"));
+                    b.Property<long>("OrderID")
+                        .HasColumnType("bigint");
 
                     b.Property<int?>("CouponID")
                         .HasColumnType("int");

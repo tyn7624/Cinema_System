@@ -7,8 +7,8 @@ namespace Cinema.Models
     public class OrderTable
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int OrderID { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public long OrderID { get; set; }
 
         [Required]
         public string UserID { get; set; } // IdentityUser uses string as primary key

@@ -309,8 +309,8 @@ namespace Cinema.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderDetailID"));
 
-                    b.Property<int>("OrderID")
-                        .HasColumnType("int");
+                    b.Property<long>("OrderID")
+                        .HasColumnType("bigint");
 
                     b.Property<double>("Price")
                         .HasColumnType("float");
@@ -337,11 +337,8 @@ namespace Cinema.DataAccess.Migrations
 
             modelBuilder.Entity("Cinema.Models.OrderTable", b =>
                 {
-                    b.Property<int>("OrderID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderID"));
+                    b.Property<long>("OrderID")
+                        .HasColumnType("bigint");
 
                     b.Property<int?>("CouponID")
                         .HasColumnType("int");

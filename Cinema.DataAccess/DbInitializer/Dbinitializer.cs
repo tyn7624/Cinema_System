@@ -69,7 +69,12 @@ namespace Cinema.DataAccess.DbInitializer
 
 
                 ApplicationUser user = (ApplicationUser)_db.Users.FirstOrDefault(u => u.Email == "admin@dotnet.com");
+                if (user == null)
+                {
+                    throw new Exception("User admin@dotnet.com was not created.");
+                }
                 _userManager.AddToRoleAsync(user, SD.Role_Admin).GetAwaiter().GetResult();
+
 
             }
 

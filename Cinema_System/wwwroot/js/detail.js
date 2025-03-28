@@ -70,14 +70,27 @@ document.getElementById("time").addEventListener("change", function () {
 
 
 // chọn ghế
-document.getElementById("seats").addEventListener("click", function (event) {
+document.getElementById("seats").addEventListener("click", async function (event) {
     let seat = event.target;
     if (seat.classList.contains("seat") && !seat.classList.contains("booked") && !seat.classList.contains("maintenance")) {
         let status;
+        let available;
+        try {
+            const response = await fetch(`/api/showtime-seat/ss/${seat.getAttribute("data-show-seat-id")}`)
+            let data = await response.json();
+            available = data.status === 0 ? 1 : 0;
+        } catch (e) {
+            console.log(e);
+            return;
+        }
         if (seat.classList.contains("selected")) {
             seat.classList.remove("selected");
             status = 0;
-        } else {
+        } else if (!available && seat.classList.contains("seat") && !seat.classList.contains("booked")) {
+            alert("Ghế này đã được chọn, vui lòng chọn ghế khác.");
+            location.reload();
+            return;
+        } else if (seat.classList.contains("seat") && !seat.classList.contains("maintenance") && !seat.classList.contains("booked")) {
             seat.classList.add("selected");
             status = 2;
         }
@@ -220,7 +233,60 @@ function addEventListenersForButtons() {
     })
 }
 
-document.getElementById('book-btn').addEventListener('click', function () {
+//document.getElementById('book-btn').addEventListener('click', function () {
+
+//    let bookBtn = this;
+//    bookBtn.disabled = true;
+//    let seatSelecteds = document.querySelectorAll(".seat.selected");
+//    let selectedSeats = [];
+//    seatSelecteds.forEach(seat => {
+//        if (!seat.classList.contains('note')) {
+//            selectedSeats.push({ nameSeat: String(seat.innerText).trim(), showTimeSeatId: seat.getAttribute("data-show-seat-id") });
+//        }
+//    })
+//    let selectedFoods = [];
+
+//    let productCard = document.querySelectorAll(".product-card");
+//    productCard.forEach(product => {
+//        let count = product.querySelector(".count").innerText;
+//        if (count > 0) {
+//            let foodName = product.querySelector("h4").innerText;
+//            let price = product.querySelector(".price").getAttribute("product-price").replace(/\D/g, "");
+//            selectedFoods.push({ name: foodName, price: price, quantity: count });
+//        }
+//    })
+
+//    let coupon = document.querySelector(".coupon").value;
+
+//    let bookingData = {
+//        Coupon: coupon,
+//                Seats: selectedSeats,
+//        Items: selectedFoods,
+//        TotalAmount: document.querySelector("#total-price").innerText.replace(/\D/g, "") // Chuyển đổi số tiền
+//    };
+
+//    fetch(`/Guest/Payment/CreatePayment`, {
+//        method: 'POST',
+//        headers: {
+//            "Content-Type": "application/json"
+//        },
+//        body: JSON.stringify(bookingData),
+//    }).then(response => response.json())
+//        .then(data => {
+//            if (data.paymentUrl) {
+//                window.location.href = data.paymentUrl; // ✅ Redirect người dùng tới PayOS
+//            } else {
+//                alert("Lỗi khi tạo thanh toán, vui lòng thử lại.");
+//                bookBtn.disabled = false;
+//            }
+//        })
+//        .catch(error => bookBtn.disabled = false);
+//})
+
+document.getElementById('book-btn').addEventListener('click', async function () {
+
+    let bookBtn = this;
+    bookBtn.disabled = true;
     let seatSelecteds = document.querySelectorAll(".seat.selected");
     let selectedSeats = [];
     seatSelecteds.forEach(seat => {
@@ -240,48 +306,111 @@ document.getElementById('book-btn').addEventListener('click', function () {
         }
     })
 
+    let nameMovie = document.querySelector("#title-movie").innerHTML;
     let coupon = document.querySelector(".coupon").value;
+    let cinemaId = document.querySelector("#cinema").value;
+    let showtimeSeat;
+    const apiUrl = `/api/showtime-seat/ss/${selectedSeats[0].showTimeSeatId}`;
+    console.log("Fetching from:", apiUrl);
+    try {
+        let response = await fetch(apiUrl);
+        showtimeSeat = await response.json();
+        console.log("Fetched data:", showtimeSeat);
+    } catch (error) {
+        console.log("Fetch error:", error);
+        return;  // Dừng hàm nếu fetch bị lỗi
+    }
+
+    let showtime;
+    try {
+        let response = await fetch(`/api/showtime/getById/${showtimeSeat.showtimeID}`)
+        showtime = await response.json();
+    } catch (e) {
+        console.error(e);
+        return;
+    }
+
+    let cinema;
+
+    try {
+        let response = await fetch(`/api/cinemas/id/${cinemaId}`);
+        cinema = await response.json();
+    } catch (e) {
+        console.error(e);
+        return;
+    }
 
     let bookingData = {
         Coupon: coupon,
                 Seats: selectedSeats,
         Items: selectedFoods,
-        TotalAmount: document.querySelector("#total-price").innerText.replace(/\D/g, "") // Chuyển đổi số tiền
+        TotalAmount: document.querySelector("#total-price").innerText.replace(/\D/g, ""), // Chuyển đổi số tiền
+        TitleMovie: nameMovie,
+        Cinema: cinema,
+        ShowTimeSeat: showtimeSeat,
+        Showtime: showtime,
+        TiketPrice: 80000
     };
 
-    fetch(`/Guest/Payment/CreatePayment`, {
-        method: 'POST',
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(bookingData),
-    }).then(response => response.json())
-        .then(data => {
-            if (data.paymentUrl) {
-                window.location.href = data.paymentUrl; // ✅ Redirect người dùng tới PayOS
-            } else {
-                alert("Lỗi khi tạo thanh toán, vui lòng thử lại.");
-            }
-        })
-        .catch(error => console.error("Lỗi khi gọi API:", error));
+    localStorage.setItem("bookingData", JSON.stringify(bookingData));
+    window.location.href = "/Guest/Details/InformationTicket";
 })
 
 $(document).ready(function () {
+    const targetNode = document.getElementById("booking-summary");
+    if (!targetNode) return;
 
- // ĐẾM NGƯỢC 5 PHÚT GIỮ VÉ
-    let timeLeft = 300;
-    const countdown = setInterval(function () {
-        timeLeft--;
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        $('#countdown').text(`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
-        if (timeLeft <= 0) {
-            clearInterval(countdown);
-            alert('Hết thời gian giữ vé!');
-            location.reload();
-        }
-    }, 1000);
+    const observer = new MutationObserver((mutationsList) => {
+        mutationsList.forEach(mutation => {
+            if (mutation.attributeName === "class") {
+                if (!targetNode.classList.contains("d-none")) {
+                    console.log("Phần tử #booking-summary đã hiển thị! Bắt đầu đếm ngược...");
+                    observer.disconnect(); // Dừng theo dõi để tránh lặp lại nhiều lần
+                    startCountdown();
+                }
+            }
+        });
+    });
+
+    observer.observe(targetNode, { attributes: true });
+
+    function startCountdown() {
+        let timeLeft = 300;
+        const countdown = setInterval(function () {
+            timeLeft--;
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            $("#countdown").text(`${minutes}:${seconds < 10 ? "0" : ""}${seconds}`);
+
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+
+                let seatSelecteds = document.querySelectorAll(".seat.selected"); // Lấy lại danh sách ghế
+
+                let promises = [];
+
+                seatSelecteds.forEach(seat => {
+                    const request = fetch(`/api/showtime-seat/${seat.getAttribute("data-show-seat-id")}/0`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                    }).then(response => response.json())
+                        .then(data => console.log(`Ghế ${seat.innerText} cập nhật:`, data))
+                        .catch(error => console.error(`Lỗi cập nhật ghế ${seat.innerText}:`, error));
+
+                    promises.push(request);
+                });
+
+                Promise.all(promises).then(() => {
+                    alert("Hết thời gian giữ vé!");
+                    location.reload();
+                });
+            }
+
+
+        }, 1000);
+    }
 });
+
 
 document.addEventListener("DOMContentLoaded", function () {
     // Load danh sách thành phố khi vào trang

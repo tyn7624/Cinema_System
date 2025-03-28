@@ -30,6 +30,18 @@ namespace Cinema_System.Areas.Guest.Controllers
             }
             return Ok(showtimeSeats);
         }
+        [HttpGet("ss/{showtimeSeatID}")]
+        public async Task<IActionResult> GetShowtimeSeatById(int showtimeSeatID)
+        {
+            var showtimeSeats = await _context.showTimeSeats
+                .Where(s => s.ShowtimeSeatID == showtimeSeatID)
+                .FirstOrDefaultAsync();
+            if (showtimeSeats == null)
+            {
+                return NotFound(new { message = "Không tìm thấy ghế nào trong suất chiếu này." });
+            }
+            return Ok(showtimeSeats);
+        }
 
         [HttpPost]
         public async Task<IActionResult> GetShowtimeSeatByShowtimeIdtAndSeatId( [FromBody] ShowTimeSearchRequest request)

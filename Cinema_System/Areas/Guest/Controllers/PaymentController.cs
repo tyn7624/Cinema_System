@@ -36,9 +36,11 @@ namespace Cinema_System.Areas
             }
 
             Coupon coupon = _context.Coupons.FirstOrDefault(c => c.Code == request.Coupon);
+            long orderCode = long.Parse(DateTime.Now.ToString("yyyyMMddHHmmss"));
 
             OrderTable order = new OrderTable
             {
+                OrderID = orderCode,
                 Status = OrderStatus.Pending,
                 TotalAmount = request.TotalAmount,
                 UserID = "a1234567-b89c-40d4-a123-456789abcdef",
@@ -50,7 +52,7 @@ namespace Cinema_System.Areas
             _context.OrderTables.Add(order);
             await _context.SaveChangesAsync();
 
-            int orderId = order.OrderID;
+            long orderId = order.OrderID;
 
             // Chuẩn bị danh sách sản phẩm từ Seats & Foods
             var items = new List<ItemData>();
@@ -106,7 +108,7 @@ namespace Cinema_System.Areas
 
         // Trang hủy
         [HttpGet]
-        public IActionResult CancelUrl(int orderCode)
+        public IActionResult CancelUrl(long orderCode)
         {
             var order = _context.OrderTables.FirstOrDefault(o => o.OrderID == orderCode);
             //var seat = _context.showTimeSeats.FirstOrDefault
@@ -125,7 +127,7 @@ namespace Cinema_System.Areas
 
         // Trang thành công
         [HttpGet]
-        public IActionResult ReturnUrl(int orderCode)
+        public IActionResult ReturnUrl(long orderCode)
         {
             // Tìm đơn hàng trong database
             var order = _context.OrderTables.FirstOrDefault(o => o.OrderID == orderCode);
