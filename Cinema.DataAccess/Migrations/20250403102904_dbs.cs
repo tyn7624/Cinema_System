@@ -424,11 +424,7 @@ namespace Cinema.DataAccess.Migrations
                 {
                     OrderDetailID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-<<<<<<<< HEAD:Cinema.DataAccess/Migrations/20250403074604_dbs.cs
-                    OrderID = table.Column<long>(type: "bigint", nullable: false),
-========
-                    OrderID = table.Column<int>(type: "int", nullable: true),
->>>>>>>> quan:Cinema.DataAccess/Migrations/20250403093857_dbs.cs
+                    OrderID = table.Column<long>(type: "bigint", nullable: true),
                     ProductID = table.Column<int>(type: "int", nullable: true),
                     ShowtimeSeatID = table.Column<int>(type: "int", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false),

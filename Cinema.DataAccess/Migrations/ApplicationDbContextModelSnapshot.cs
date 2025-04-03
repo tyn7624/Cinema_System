@@ -306,20 +306,14 @@ namespace Cinema.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderDetailID"));
 
-<<<<<<< HEAD
-                    b.Property<long>("OrderID")
+                    b.Property<long?>("OrderID")
                         .HasColumnType("bigint");
-=======
-                    b.Property<int?>("OrderID")
-                        .HasColumnType("int");
->>>>>>> quan
 
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
                     b.Property<int?>("ProductID")
-                        .HasColumnType("int")
-                        .HasColumnName("ProductID");
+                        .HasColumnType("int");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");

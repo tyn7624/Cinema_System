@@ -12,11 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinema.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-<<<<<<<< HEAD:Cinema.DataAccess/Migrations/20250403074604_dbs.Designer.cs
-    [Migration("20250403074604_dbs")]
-========
-    [Migration("20250403093857_dbs")]
->>>>>>>> quan:Cinema.DataAccess/Migrations/20250403093857_dbs.Designer.cs
+    [Migration("20250403102904_dbs")]
     partial class dbs
     {
         /// <inheritdoc />
@@ -313,20 +309,14 @@ namespace Cinema.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderDetailID"));
 
-<<<<<<<< HEAD:Cinema.DataAccess/Migrations/20250403074604_dbs.Designer.cs
-                    b.Property<long>("OrderID")
+                    b.Property<long?>("OrderID")
                         .HasColumnType("bigint");
-========
-                    b.Property<int?>("OrderID")
-                        .HasColumnType("int");
->>>>>>>> quan:Cinema.DataAccess/Migrations/20250403093857_dbs.Designer.cs
 
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
                     b.Property<int?>("ProductID")
-                        .HasColumnType("int")
-                        .HasColumnName("ProductID");
+                        .HasColumnType("int");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
