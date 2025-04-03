@@ -360,13 +360,24 @@ $(document).ready(function () {
     const targetNode = document.getElementById("booking-summary");
     if (!targetNode) return;
 
+    let connection = new signalR.HubConnectionBuilder()
+        .withUrl("/countdownHub")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+    connection.start().then(() => {
+        console.log("✅ Kết nối SignalR thành công!");
+    }).catch(err => console.error("❌ Lỗi kết nối SignalR:", err));
+
     const observer = new MutationObserver((mutationsList) => {
         mutationsList.forEach(mutation => {
             if (mutation.attributeName === "class") {
                 if (!targetNode.classList.contains("d-none")) {
                     console.log("Phần tử #booking-summary đã hiển thị! Bắt đầu đếm ngược...");
-                    observer.disconnect(); // Dừng theo dõi để tránh lặp lại nhiều lần
-                    startCountdown();
+                    observer.disconnect();
+                    connection.invoke("StartCountdown").then(() => {
+                        console.log("📡 Gửi lệnh StartCountdown thành công!");
+                    }).catch(err => console.error("❌ Lỗi khi gửi lệnh StartCountdown:", err));
                 }
             }
         });
@@ -374,42 +385,54 @@ $(document).ready(function () {
 
     observer.observe(targetNode, { attributes: true });
 
-    function startCountdown() {
-        let timeLeft = 300;
-        const countdown = setInterval(function () {
-            timeLeft--;
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            $("#countdown").text(`${minutes}:${seconds < 10 ? "0" : ""}${seconds}`);
+    connection.on("ReceiveCountdown", function (timeLeft) {
+        console.log(`⏳ Nhận thời gian từ server: ${timeLeft}s`);
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        document.getElementById("countdown").textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+    });
 
-            if (timeLeft <= 0) {
-                clearInterval(countdown);
+    connection.on("CountdownFinished", function (selectedSeats) {
+        let promises = [];
 
-                let seatSelecteds = document.querySelectorAll(".seat.selected"); // Lấy lại danh sách ghế
+        selectedSeats.forEach(seatId => {
+            const request = fetch(`/api/showtime-seat/${seatId}/0`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+            }).then(response => response.json())
+                .then(data => console.log(`Ghế ${seatId} cập nhật:`, data))
+                .catch(error => console.error(`Lỗi cập nhật ghế ${seatId}:`, error));
 
-                let promises = [];
+            promises.push(request);
+        });
 
-                seatSelecteds.forEach(seat => {
-                    const request = fetch(`/api/showtime-seat/${seat.getAttribute("data-show-seat-id")}/0`, {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                    }).then(response => response.json())
-                        .then(data => console.log(`Ghế ${seat.innerText} cập nhật:`, data))
-                        .catch(error => console.error(`Lỗi cập nhật ghế ${seat.innerText}:`, error));
+        Promise.all(promises).then(() => {
+            alert("Hết thời gian giữ vé!");
+            location.reload();
+        });
+    });
 
-                    promises.push(request);
-                });
+    connection.onclose(() => {
+        console.warn("⚠️ Mất kết nối SignalR. Thử kết nối lại sau 5 giây...");
+        setTimeout(() => connection.start(), 5000);
+    });
 
-                Promise.all(promises).then(() => {
-                    alert("Hết thời gian giữ vé!");
-                    location.reload();
-                });
+    // Event listener for seat selection
+    document.querySelectorAll(".seat").forEach(seat => {
+        seat.addEventListener("click", function () {
+            const seatId = seat.getAttribute("data-show-seat-id");
+            if (seat.classList.contains("selected")) {
+                seat.classList.remove("selected");
+                connection.invoke("DeselectSeat", seatId).catch(err => console.error(err));
+            } else {
+                seat.classList.add("selected");
+                connection.invoke("SelectSeat", seatId).catch(err => console.error(err));
             }
-
-
-        }, 1000);
-    }
+        });
+    });
 });
+
+
 
 
 document.addEventListener("DOMContentLoaded", function () {

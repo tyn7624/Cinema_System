@@ -10,6 +10,9 @@ using Cinema.DbInitializer;
 using Cinema.DataAccess.DbInitializer;
 using Net.payOS;
 using Cinema_System.Areas.Service;
+using Cinema_System.Areas.Request;
+using Microsoft.AspNetCore.SignalR;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +31,7 @@ builder.Services.AddScoped<PayOSService>();  // Hoặc AddSingleton nếu bạn 
 
 // Đăng ký các dịch vụ khác
 builder.Services.AddControllersWithViews();
+builder.Services.AddSignalR();
 
 
 // Add services to the container.
@@ -77,6 +81,7 @@ SeedDatabase();
 
 app.MapRazorPages();
 app.MapStaticAssets();
+app.MapHub<CountdownHub>("/countdownHub");
 
 
 
