@@ -12,6 +12,7 @@ namespace Cinema_System.Areas.Request
         public string CancelUrl { get; set; } = string.Empty; // ✅ URL khi hủy
         public string ReturnUrl { get; set; } = string.Empty; // ✅ URL khi thanh toán thành công
 
+        public GuestRequest Guest { get; set; } = new GuestRequest();
         public string Coupon { get; set; } = string.Empty;
     }
 }

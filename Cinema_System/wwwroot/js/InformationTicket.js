@@ -69,12 +69,18 @@ function formatDateTime(isoString) {
 document.getElementById("bookingForm").addEventListener('submit', function (e) {
     e.preventDefault();
     let bookingData = JSON.parse(localStorage.getItem("bookingData"));
-    let bookingDataPayment = {
-        Coupon: bookingData.Coupon,
-        Seats: bookingData.Seats,
-        Items: bookingData.Items,
-        TotalAmount: bookingData.TotalAmount,
-        };
+    const fullname = document.getElementsByName("fullname")[0].value;
+    const email = document.getElementsByName("email")[0].value;
+    const phone = document.getElementsByName("phone")[0].value;
+
+    bookingData = {
+        ...bookingData,
+        Guest: {
+            fullname: fullname,
+            email: email,
+            phone: phone,
+        },
+    }
 
         fetch(`/Guest/Payment/CreatePayment`, {
             method: 'POST',

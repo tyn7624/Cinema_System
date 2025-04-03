@@ -312,55 +312,14 @@ function addEventListenersForButtons() {
     })
 }
 
-//document.getElementById('book-btn').addEventListener('click', function () {
-
-//    let bookBtn = this;
-//    bookBtn.disabled = true;
-//    let seatSelecteds = document.querySelectorAll(".seat.selected");
-//    let selectedSeats = [];
-//    seatSelecteds.forEach(seat => {
-//        if (!seat.classList.contains('note')) {
-//            selectedSeats.push({ nameSeat: String(seat.innerText).trim(), showTimeSeatId: seat.getAttribute("data-show-seat-id") });
-//        }
-//    })
-//    let selectedFoods = [];
-
-//    let productCard = document.querySelectorAll(".product-card");
-//    productCard.forEach(product => {
-//        let count = product.querySelector(".count").innerText;
-//        if (count > 0) {
-//            let foodName = product.querySelector("h4").innerText;
-//            let price = product.querySelector(".price").getAttribute("product-price").replace(/\D/g, "");
-//            selectedFoods.push({ name: foodName, price: price, quantity: count });
-//        }
-//    })
-
-//    let coupon = document.querySelector(".coupon").value;
-
-//    let bookingData = {
-//        Coupon: coupon,
-//                Seats: selectedSeats,
-//        Items: selectedFoods,
-//        TotalAmount: document.querySelector("#total-price").innerText.replace(/\D/g, "") // Chuyển đổi số tiền
-//    };
-
-//    fetch(`/Guest/Payment/CreatePayment`, {
-//        method: 'POST',
-//        headers: {
-//            "Content-Type": "application/json"
-//        },
-//        body: JSON.stringify(bookingData),
-//    }).then(response => response.json())
-//        .then(data => {
-//            if (data.paymentUrl) {
-//                window.location.href = data.paymentUrl; // ✅ Redirect người dùng tới PayOS
-//            } else {
-//                alert("Lỗi khi tạo thanh toán, vui lòng thử lại.");
-//                bookBtn.disabled = false;
-//            }
-//        })
-//        .catch(error => bookBtn.disabled = false);
-//})
+function getCookie(name) {
+    let match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    localStorage.setItem("match", match);
+    if (match) {
+        return match[2];  // Return the cookie value
+    }
+    return null;  // Return null if the cookie is not found
+}
 
 document.getElementById('book-btn').addEventListener('click', async function () {
 
@@ -430,9 +389,28 @@ document.getElementById('book-btn').addEventListener('click', async function () 
         Showtime: showtime,
         TiketPrice: 80000
     };
-
-    localStorage.setItem("bookingData", JSON.stringify(bookingData));
-    window.location.href = "/Guest/Details/InformationTicket";
+    const user = getCookie('user');
+    if (user != null) {
+        fetch(`/Guest/Payment/CreatePayment`, {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(bookingData),
+        }).then(response => response.json())
+            .then(data => {
+                if (data.paymentUrl) {
+                    window.location.href = data.paymentUrl; // ✅ Redirect người dùng tới PayOS
+                } else {
+                    alert("Lỗi khi tạo thanh toán, vui lòng thử lại.");
+                    bookBtn.disabled = false;
+                }
+            })
+            .catch(error => bookBtn.disabled = false);
+    } else {
+        localStorage.setItem("bookingData", JSON.stringify(bookingData));
+        window.location.href = "/Guest/Details/InformationTicket";
+    }
 })
 
 //$(document).ready(function () {

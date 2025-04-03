@@ -143,6 +143,13 @@ namespace Cinema_System.Areas
                 couponPrice -= (int)(request.TotalAmount * coupon.DiscountPercentage);
                 items.Add(new ItemData(coupon.Code, 1, couponPrice));
             }
+
+            if(request.Guest != null)
+            {
+                ApplicationUser user = new ApplicationUser { FullName = request.Guest.fullname, Email = request.Guest.email, PhoneNumber = request.Guest.phone};
+                _context.ApplicationUsers.Add(user);
+                await _context.SaveChangesAsync();
+            }
             // Gọi dịch vụ PayOS để tạo thanh toán
             var response = await _payOSService.CreatePaymentAsync(request.TotalAmount + couponPrice, orderId, items, _payOS);
 
