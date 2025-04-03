@@ -59,6 +59,84 @@ document.getElementById("time").addEventListener("change", function () {
                             }
                             seatsContainer.insertAdjacentHTML("beforeend", "<br>");
                         });
+                        const targetNode = document.getElementById("booking-summary");
+                        if (!targetNode) return;
+
+                        let connection = new signalR.HubConnectionBuilder()
+                            .withUrl("/countdownHub")
+                            .configureLogging(signalR.LogLevel.Information)
+                            .build();
+
+                        connection.start().then(() => {
+                            console.log("✅ Kết nối SignalR thành công!");
+                        }).catch(err => console.error("❌ Lỗi kết nối SignalR:", err));
+
+                        const observer = new MutationObserver((mutationsList) => {
+                            mutationsList.forEach(mutation => {
+                                if (mutation.attributeName === "class") {
+                                    if (!targetNode.classList.contains("d-none")) {
+                                        console.log("Phần tử #booking-summary đã hiển thị! Bắt đầu đếm ngược...");
+                                        observer.disconnect();
+                                        connection.invoke("StartCountdown").then(() => {
+                                            console.log("📡 Gửi lệnh StartCountdown thành công!");
+                                        }).catch(err => console.error("❌ Lỗi khi gửi lệnh StartCountdown:", err));
+                                    }
+                                }
+                            });
+                        });
+
+                        observer.observe(targetNode, { attributes: true });
+
+                        connection.on("ReceiveCountdown", function (timeLeft) {
+                            console.log(`⏳ Nhận thời gian từ server: ${timeLeft}s`);
+                            const minutes = Math.floor(timeLeft / 60);
+                            const seconds = timeLeft % 60;
+                            document.getElementById("countdown").textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+                        });
+
+                        connection.on("CountdownFinished", function (selectedSeats) {
+                            let promises = [];
+
+                            selectedSeats.forEach(seatId => {
+                                const request = fetch(`/api/showtime-seat/${seatId}/0`, {
+                                    method: "PUT",
+                                    headers: { "Content-Type": "application/json" },
+                                }).then(response => response.json())
+                                    .then(data => console.log(`Ghế ${seatId} cập nhật:`, data))
+                                    .catch(error => console.error(`Lỗi cập nhật ghế ${seatId}:`, error));
+
+                                promises.push(request);
+                            });
+
+                            Promise.all(promises).then(() => {
+                                alert("Hết thời gian giữ vé!");
+                                location.reload();
+                            });
+                        });
+
+                        connection.onclose(() => {
+                            console.warn("⚠️ Mất kết nối SignalR. Thử kết nối lại sau 5 giây...");
+                            setTimeout(() => connection.start(), 5000);
+                        });
+
+                        // Event listener for seat selection
+                        const seats = document.querySelectorAll(".seat");
+                        seats.forEach(seat => {
+                            seat.addEventListener("click", async function () {
+                                const seatId = Number(seat.getAttribute("data-show-seat-id"));
+                                if (seat.classList.contains("selected")) {
+                                    seat.classList.remove("selected");
+                                    await connection.invoke("DeselectSeat", seatId).catch(err => console.error(err));
+                                } else {
+                                    seat.classList.add("selected");
+                                    await connection.invoke("SelectSeat", seatId)
+                                        .catch(err => {
+                                            console.error("❌ Lỗi SelectSeat:", err.message);
+                                            alert("Có lỗi xảy ra khi chọn ghế, vui lòng thử lại!");
+                                        });
+                                }
+                            });
+                        });
                     });
                 })
                 .catch(error => console.error("Lỗi:", error));
@@ -68,6 +146,9 @@ document.getElementById("time").addEventListener("change", function () {
     }
 });
 
+/**
+ * 
+ */
 
 // chọn ghế
 document.getElementById("seats").addEventListener("click", async function (event) {
@@ -84,14 +165,12 @@ document.getElementById("seats").addEventListener("click", async function (event
             return;
         }
         if (seat.classList.contains("selected")) {
-            seat.classList.remove("selected");
             status = 0;
         } else if (!available && seat.classList.contains("seat") && !seat.classList.contains("booked")) {
             alert("Ghế này đã được chọn, vui lòng chọn ghế khác.");
             location.reload();
             return;
         } else if (seat.classList.contains("seat") && !seat.classList.contains("maintenance") && !seat.classList.contains("booked")) {
-            seat.classList.add("selected");
             status = 2;
         }
 
@@ -356,81 +435,9 @@ document.getElementById('book-btn').addEventListener('click', async function () 
     window.location.href = "/Guest/Details/InformationTicket";
 })
 
-$(document).ready(function () {
-    const targetNode = document.getElementById("booking-summary");
-    if (!targetNode) return;
-
-    let connection = new signalR.HubConnectionBuilder()
-        .withUrl("/countdownHub")
-        .configureLogging(signalR.LogLevel.Information)
-        .build();
-
-    connection.start().then(() => {
-        console.log("✅ Kết nối SignalR thành công!");
-    }).catch(err => console.error("❌ Lỗi kết nối SignalR:", err));
-
-    const observer = new MutationObserver((mutationsList) => {
-        mutationsList.forEach(mutation => {
-            if (mutation.attributeName === "class") {
-                if (!targetNode.classList.contains("d-none")) {
-                    console.log("Phần tử #booking-summary đã hiển thị! Bắt đầu đếm ngược...");
-                    observer.disconnect();
-                    connection.invoke("StartCountdown").then(() => {
-                        console.log("📡 Gửi lệnh StartCountdown thành công!");
-                    }).catch(err => console.error("❌ Lỗi khi gửi lệnh StartCountdown:", err));
-                }
-            }
-        });
-    });
-
-    observer.observe(targetNode, { attributes: true });
-
-    connection.on("ReceiveCountdown", function (timeLeft) {
-        console.log(`⏳ Nhận thời gian từ server: ${timeLeft}s`);
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        document.getElementById("countdown").textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-    });
-
-    connection.on("CountdownFinished", function (selectedSeats) {
-        let promises = [];
-
-        selectedSeats.forEach(seatId => {
-            const request = fetch(`/api/showtime-seat/${seatId}/0`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-            }).then(response => response.json())
-                .then(data => console.log(`Ghế ${seatId} cập nhật:`, data))
-                .catch(error => console.error(`Lỗi cập nhật ghế ${seatId}:`, error));
-
-            promises.push(request);
-        });
-
-        Promise.all(promises).then(() => {
-            alert("Hết thời gian giữ vé!");
-            location.reload();
-        });
-    });
-
-    connection.onclose(() => {
-        console.warn("⚠️ Mất kết nối SignalR. Thử kết nối lại sau 5 giây...");
-        setTimeout(() => connection.start(), 5000);
-    });
-
-    // Event listener for seat selection
-    document.querySelectorAll(".seat").forEach(seat => {
-        seat.addEventListener("click", function () {
-            const seatId = seat.getAttribute("data-show-seat-id");
-            if (seat.classList.contains("selected")) {
-                seat.classList.remove("selected");
-                connection.invoke("DeselectSeat", seatId).catch(err => console.error(err));
-            } else {
-                seat.classList.add("selected");
-                connection.invoke("SelectSeat", seatId).catch(err => console.error(err));
-            }
-        });
-    });
-});
+//$(document).ready(function () {
+    
+//});
 
 
 
