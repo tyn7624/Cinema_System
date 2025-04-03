@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cinema.Models
 {
@@ -18,11 +20,14 @@ namespace Cinema.Models
 
         public DateTime UsedAt { get; set; }
 
-        // Navigation properties
         [ForeignKey("UserID")]
+        [InverseProperty("UserCoupons")]
+        [ValidateNever]
         public virtual ApplicationUser User { get; set; }
 
         [ForeignKey("CouponID")]
+        [InverseProperty("UserCoupons")]
+        [ValidateNever]
         public virtual Coupon Coupon { get; set; }
     }
 }
