@@ -69,7 +69,7 @@ namespace Cinema_System.Areas
                     NormalizedUserName = null,
                     NormalizedEmail = null,
                     PhoneNumber = request.Guest.phone,
-                    FulName = request.Guest.fullname,
+                    FullName = request.Guest.fullname,
                     EmailConfirmed = false
                 };
 

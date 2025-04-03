@@ -13,7 +13,7 @@ namespace Cinema_System.Areas.Guest.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public DetailsController( IUnitOfWork unitOfWork)
+        public DetailsController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -27,12 +27,13 @@ namespace Cinema_System.Areas.Guest.Controllers
 
             return View(detailVM);
         }
-        
-        
+
+
         public async Task<IActionResult> InformationTicket()
         {
             return View();
         }
     }
+}
 
 

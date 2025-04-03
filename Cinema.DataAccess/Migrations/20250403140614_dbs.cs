@@ -487,12 +487,19 @@ namespace Cinema.DataAccess.Migrations
                 columns: new[] { "ProductID", "Description", "Name", "Price", "ProductImage", "ProductType", "Quantity" },
                 values: new object[,]
                 {
-                    { 1, "A large bucket of buttered popcorn.", "Popcorn", 89000.0, "/css/images/popcorn.png", 0, 50 },
-                    { 2, "Refreshing cold soda, 500ml.", "Soda", 39000.0, "/css/images/soda.png", 1, 100 },
-                    { 3, "Refreshing cold soda, 500ml.", "Coca", 39000.0, "/css/images/drink2.png", 1, 100 },
-                    { 4, "Refreshing cold soda, 500ml.", "Sprite", 39000.0, "/css/images/drink1.png", 1, 100 },
-                    { 5, "Refreshing cold soda, 500ml.", "Combo Couple", 129000.0, "/css/images/popcorn1.png", 2, 100 },
-                    { 6, "Refreshing cold soda, 500ml.", "Combo Full", 229000.0, "/css/images/popcorn2.png", 2, 100 }
+                    { 1, "mix with cheese", "Popcorn Cheese", 50000.0, "/css/images/pro1.jpg", 0, 12 },
+                    { 2, "Mix with Caramel", "Popcorn Caramel", 50000.0, "/css/images/pro2.jpg", 0, 10 },
+                    { 3, "Mix with Caramel and Cheese", "Popcorn Mix", 50000.0, "/css/images/pro6.jpg", 0, 20 },
+                    { 4, "Traditional Popcorn", "Popcorn", 50000.0, "/css/images/pro3.jpg", 0, 8 },
+                    { 5, "Refreshing drink to quench your thirst.", "Boba Tea", 20000.0, "/css/images/pro4.jpg", 1, 25 },
+                    { 6, "Sweet and fruity drink for a burst of flavor.", "Orange Juice", 20000.0, "/css/images/pro5.jpg", 1, 18 },
+                    { 7, "Energy drink to keep you going.", "Coke 32Oz", 20000.0, "/css/images/drink2.png", 1, 12 },
+                    { 8, "Classic soda for a nostalgic taste.", "Sprite", 20000.0, "/css/images/drink1.png", 1, 30 },
+                    { 9, "2 coke + 1 corn cheese + 1 corn caramel", "COMBO A", 100000.0, "/css/images/popcorn1.png", 3, 8 },
+                    { 10, "4 coke + 2 corn cheese + 2 corn caramel", "COMBO B", 150000.0, "/css/images/popcorn2.png", 3, 10 },
+                    { 11, "1 sprite + mix popcorn cheese caramel", "COMBO C", 70000.0, "/css/images/popcorn3.png", 3, 6 },
+                    { 12, "1 Teddy Bear + 1 Bottle", "Special Gift 1", 50000.0, "/css/images/gift1.jpg", 2, 3 },
+                    { 13, "1 Teddy Bear + 1 Bottle", "Special Gift 1", 75000.0, "/css/images/gift3.jpg", 2, 2 }
                 });
 
             migrationBuilder.InsertData(
