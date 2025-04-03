@@ -40,11 +40,7 @@ namespace Cinema_System.Areas.Request
 
             await Clients.All.SendAsync("CountdownFinished", selectedSeats); // Send selected seats to clients
 
-            foreach (int seat in selectedSeats)
-            {
-                await showtime.PutSTSeatStatus(seat, 0);
-            }
-
+            await showtime.PutSTSeatsStatus(selectedSeats.ToList(), 0);
             ResetCountdown();
         }
 

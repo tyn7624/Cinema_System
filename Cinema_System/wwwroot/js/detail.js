@@ -122,14 +122,12 @@ document.getElementById("time").addEventListener("change", function () {
                         // Event listener for seat selection
                         const seats = document.querySelectorAll(".seat");
                         seats.forEach(seat => {
-                            seat.addEventListener("click", async function () {
+                            seat.addEventListener("click", function () {
                                 const seatId = Number(seat.getAttribute("data-show-seat-id"));
                                 if (seat.classList.contains("selected")) {
-                                    seat.classList.remove("selected");
-                                    await connection.invoke("DeselectSeat", seatId).catch(err => console.error(err));
+                                    connection.invoke("DeselectSeat", seatId).catch(err => console.error(err));
                                 } else {
-                                    seat.classList.add("selected");
-                                    await connection.invoke("SelectSeat", seatId)
+                                    connection.invoke("SelectSeat", seatId)
                                         .catch(err => {
                                             console.error("❌ Lỗi SelectSeat:", err.message);
                                             alert("Có lỗi xảy ra khi chọn ghế, vui lòng thử lại!");
@@ -166,12 +164,14 @@ document.getElementById("seats").addEventListener("click", async function (event
         }
         if (seat.classList.contains("selected")) {
             status = 0;
+            seat.classList.remove("selected");
         } else if (!available && seat.classList.contains("seat") && !seat.classList.contains("booked")) {
             alert("Ghế này đã được chọn, vui lòng chọn ghế khác.");
             location.reload();
             return;
         } else if (seat.classList.contains("seat") && !seat.classList.contains("maintenance") && !seat.classList.contains("booked")) {
             status = 2;
+            seat.classList.add("selected");
         }
 
         fetch(`/api/showtime-seat/${seat.getAttribute("data-show-seat-id")}/${status}`, {

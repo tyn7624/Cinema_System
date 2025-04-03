@@ -78,5 +78,36 @@ namespace Cinema_System.Areas.Guest.Controllers
 
             return Ok();
         }
+
+        public async Task<IActionResult> PutSTSeatsStatus(List<int> showTimeSeatIds, int status)
+        {
+            // Kiểm tra tính hợp lệ của status
+            if (!Enum.IsDefined(typeof(ShowtimeSeatStatus), status))
+            {
+                return BadRequest("Invalid seat status");
+            }
+
+            // Lấy danh sách ghế từ database dựa trên showTimeSeatIds
+            var seats = await _context.showTimeSeats
+                                       .Where(seat => showTimeSeatIds.Contains(seat.ShowtimeSeatID))
+                                       .ToListAsync();
+
+            // Kiểm tra xem có ghế nào không tìm thấy
+            if (seats.Count == 0)
+            {
+                return NotFound("Seats not found.");
+            }
+
+            // Cập nhật status cho tất cả các ghế
+            foreach (var seat in seats)
+            {
+                seat.Status = (ShowtimeSeatStatus)status;
+            }
+
+            // Lưu các thay đổi vào cơ sở dữ liệu
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
     }
 }
