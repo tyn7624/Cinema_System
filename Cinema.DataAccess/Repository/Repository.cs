@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Cinema.DataAccess.Data;
 using Cinema.DataAccess.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1;
 
 namespace Cinema.DataAccess.Repository
 {
@@ -19,13 +20,21 @@ namespace Cinema.DataAccess.Repository
         {
             _context = context;
             dbSet = _context.Set<T>();
+
         }
 
-        public async Task<T?> GetAsync(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        public async Task<T?> GetAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
         {
-            IQueryable<T> query = dbSet.Where(filter);
+            IQueryable<T> query = dbSet;
 
-            if (!string.IsNullOrEmpty(includeProperties))
+            // ✅ Apply filter only if it's not null
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            // ✅ Handle includeProperties safely
+            if (!string.IsNullOrWhiteSpace(includeProperties))
             {
                 foreach (var includeProp in includeProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
                 {
@@ -56,7 +65,7 @@ namespace Cinema.DataAccess.Repository
             return await query.ToListAsync();
         }
 
-    
+
         public void Add(T entity)
         {
             dbSet.Add(entity);
@@ -72,7 +81,7 @@ namespace Cinema.DataAccess.Repository
             dbSet.RemoveRange(entities);
         }
 
-        public async Task<IEnumerable<T>> GetAllPagedAsync( Expression<Func<T, bool>>? filter = null, string? includeProperties = null,   int pageIndex = 1,  int pageSize = 3)
+        public async Task<IEnumerable<T>> GetAllPagedAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, int pageIndex = 1, int pageSize = 3)
         {
             IQueryable<T> query = dbSet;
 
@@ -105,9 +114,9 @@ namespace Cinema.DataAccess.Repository
                 query = query.Where(filter);
             }
 
-            if(!string.IsNullOrEmpty(includeProperties))
+            if (!string.IsNullOrEmpty(includeProperties))
             {
-                foreach(var includeProp in includeProperties.Split(new char[] {','},StringSplitOptions.RemoveEmptyEntries))
+                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
                     query = query.Include(includeProp);
                 }
@@ -115,14 +124,62 @@ namespace Cinema.DataAccess.Repository
 
             return await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
         }
+        // offset    movies = 10 -> page 1 -> offset 0 , movies 3 
+        // page 2 -> offset 3 , movies 3
+        // page 3 -> offset 6 , movies 3
+        // page 4 -> offset 9 , movies 1
 
-        public async Task<int> CountAsync(Expression<Func<T, bool>> ? filter = null)
+        // 
+        public async Task<int> CountAsync(Expression<Func<T, bool>>? filter = null)
         {
-           if(filter != null)
+            if (filter != null)
             {
                 return await dbSet.CountAsync(filter);
             }
-           return await dbSet.CountAsync();
+            return await dbSet.CountAsync();
+        }
+
+
+        public T Get(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        {
+            IQueryable<T> query = dbSet.Where(filter);
+
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProp in includeProperties
+                    .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp);
+                }
+            }
+            // Category,CategoryID ->    {"Category","CategoryID"}
+            return query.FirstOrDefault();
+        }
+
+
+        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
+        {
+            IQueryable<T> query = dbSet;
+            if (filter != null)
+            {
+                query.Where(filter);
+
+            }
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProp in includeProperties.
+                   Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp);
+                }
+            }
+
+            return query.ToList();
+        }
+
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await dbSet.AnyAsync(predicate);
         }
     }
 

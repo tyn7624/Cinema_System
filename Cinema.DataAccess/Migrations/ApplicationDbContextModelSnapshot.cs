@@ -36,7 +36,6 @@ namespace Cinema.DataAccess.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("CouponImage")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("DiscountPercentage")
@@ -76,7 +75,6 @@ namespace Cinema.DataAccess.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MovieID"));
 
                     b.Property<string>("AgeLimit")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("CreatedAt")
@@ -93,7 +91,6 @@ namespace Cinema.DataAccess.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("MovieImage")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ReleaseDate")
@@ -309,20 +306,29 @@ namespace Cinema.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderDetailID"));
 
+<<<<<<< HEAD
                     b.Property<long>("OrderID")
                         .HasColumnType("bigint");
+=======
+                    b.Property<int?>("OrderID")
+                        .HasColumnType("int");
+>>>>>>> quan
 
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
                     b.Property<int?>("ProductID")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("ProductID");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.Property<int?>("ShowtimeSeatID")
                         .HasColumnType("int");
+
+                    b.Property<double>("TotalPrice")
+                        .HasColumnType("float");
 
                     b.HasKey("OrderDetailID");
 
@@ -959,8 +965,11 @@ namespace Cinema.DataAccess.Migrations
                     b.Property<int>("RoomID")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("ShowDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("ShowDate")
+                        .HasColumnType("date");
+
+                    b.Property<TimeSpan>("ShowTimes")
+                        .HasColumnType("time");
 
                     b.HasKey("ShowTimeID");
 
@@ -976,56 +985,64 @@ namespace Cinema.DataAccess.Migrations
                             ShowTimeID = 1,
                             MovieID = 1,
                             RoomID = 1,
-                            ShowDate = new DateTime(2025, 3, 10, 7, 30, 0, 0, DateTimeKind.Unspecified)
+                            ShowDate = new DateOnly(2025, 3, 10),
+                            ShowTimes = new TimeSpan(0, 7, 3, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 2,
-                            MovieID = 2,
+                            MovieID = 3,
                             RoomID = 2,
-                            ShowDate = new DateTime(2025, 3, 10, 9, 30, 0, 0, DateTimeKind.Unspecified)
+                            ShowDate = new DateOnly(2025, 3, 10),
+                            ShowTimes = new TimeSpan(0, 9, 3, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 3,
                             MovieID = 1,
                             RoomID = 1,
-                            ShowDate = new DateTime(2025, 3, 10, 11, 30, 0, 0, DateTimeKind.Unspecified)
+                            ShowDate = new DateOnly(2025, 3, 10),
+                            ShowTimes = new TimeSpan(0, 11, 3, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 4,
                             MovieID = 1,
                             RoomID = 1,
-                            ShowDate = new DateTime(2025, 3, 10, 13, 30, 0, 0, DateTimeKind.Unspecified)
+                            ShowDate = new DateOnly(2025, 3, 10),
+                            ShowTimes = new TimeSpan(0, 13, 3, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 5,
                             MovieID = 1,
                             RoomID = 1,
-                            ShowDate = new DateTime(2025, 3, 11, 7, 30, 0, 0, DateTimeKind.Unspecified)
+                            ShowDate = new DateOnly(2025, 3, 11),
+                            ShowTimes = new TimeSpan(0, 15, 3, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 6,
                             MovieID = 1,
                             RoomID = 2,
-                            ShowDate = new DateTime(2025, 3, 11, 9, 30, 0, 0, DateTimeKind.Unspecified)
+                            ShowDate = new DateOnly(2025, 3, 11),
+                            ShowTimes = new TimeSpan(0, 17, 3, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 7,
                             MovieID = 1,
                             RoomID = 2,
-                            ShowDate = new DateTime(2025, 3, 11, 11, 30, 0, 0, DateTimeKind.Unspecified)
+                            ShowDate = new DateOnly(2025, 3, 11),
+                            ShowTimes = new TimeSpan(0, 18, 3, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 8,
                             MovieID = 1,
                             RoomID = 1,
-                            ShowDate = new DateTime(2025, 3, 12, 9, 30, 0, 0, DateTimeKind.Unspecified)
+                            ShowDate = new DateOnly(2025, 3, 12),
+                            ShowTimes = new TimeSpan(0, 19, 3, 0, 0)
                         });
                 });
 
@@ -1512,6 +1529,7 @@ namespace Cinema.DataAccess.Migrations
                         {
                             CinemaID = 1,
                             Address = "123 Main St, Da Nang City",
+                            AdminID = "a1234567-b89c-40d4-a123-456789abcdef",
                             CinemaCity = "Danang",
                             ClosingTime = new TimeSpan(0, 23, 0, 0, 0),
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -1828,8 +1846,6 @@ namespace Cinema.DataAccess.Migrations
                     b.Property<string>("UserImage")
                         .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("AspNetUsers", (string)null);
-
                     b.HasDiscriminator().HasValue("ApplicationUser");
 
                     b.HasData(
@@ -1859,9 +1875,7 @@ namespace Cinema.DataAccess.Migrations
                 {
                     b.HasOne("Cinema.Models.OrderTable", "Order")
                         .WithMany("OrderDetails")
-                        .HasForeignKey("OrderID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("OrderID");
 
                     b.HasOne("Cinema.Models.Product", "Product")
                         .WithMany()
@@ -1881,7 +1895,7 @@ namespace Cinema.DataAccess.Migrations
             modelBuilder.Entity("Cinema.Models.OrderTable", b =>
                 {
                     b.HasOne("Cinema.Models.Coupon", "Coupon")
-                        .WithMany()
+                        .WithMany("OrderTables")
                         .HasForeignKey("CouponID");
 
                     b.HasOne("Cinema.Models.ApplicationUser", "User")
@@ -1897,13 +1911,13 @@ namespace Cinema.DataAccess.Migrations
 
             modelBuilder.Entity("Cinema.Models.Room", b =>
                 {
-                    b.HasOne("Cinema.Models.Theater", "Cinema")
+                    b.HasOne("Cinema.Models.Theater", "Theater")
                         .WithMany("Rooms")
                         .HasForeignKey("CinemaID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Cinema");
+                    b.Navigation("Theater");
                 });
 
             modelBuilder.Entity("Cinema.Models.Seat", b =>
@@ -1939,13 +1953,13 @@ namespace Cinema.DataAccess.Migrations
             modelBuilder.Entity("Cinema.Models.ShowtimeSeat", b =>
                 {
                     b.HasOne("Cinema.Models.Seat", "Seat")
-                        .WithMany()
+                        .WithMany("ShowtimeSeats")
                         .HasForeignKey("SeatID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Cinema.Models.ShowTime", "Showtime")
-                        .WithMany()
+                        .WithMany("ShowTimeSeats")
                         .HasForeignKey("ShowtimeID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1958,7 +1972,7 @@ namespace Cinema.DataAccess.Migrations
             modelBuilder.Entity("Cinema.Models.Theater", b =>
                 {
                     b.HasOne("Cinema.Models.ApplicationUser", "Admin")
-                        .WithMany()
+                        .WithMany("Theaters")
                         .HasForeignKey("AdminID");
 
                     b.Navigation("Admin");
@@ -1973,7 +1987,7 @@ namespace Cinema.DataAccess.Migrations
                         .IsRequired();
 
                     b.HasOne("Cinema.Models.ApplicationUser", "User")
-                        .WithMany()
+                        .WithMany("UserCoupons")
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2036,6 +2050,8 @@ namespace Cinema.DataAccess.Migrations
 
             modelBuilder.Entity("Cinema.Models.Coupon", b =>
                 {
+                    b.Navigation("OrderTables");
+
                     b.Navigation("UserCoupons");
                 });
 
@@ -2056,9 +2072,26 @@ namespace Cinema.DataAccess.Migrations
                     b.Navigation("ShowTimes");
                 });
 
+            modelBuilder.Entity("Cinema.Models.Seat", b =>
+                {
+                    b.Navigation("ShowtimeSeats");
+                });
+
+            modelBuilder.Entity("Cinema.Models.ShowTime", b =>
+                {
+                    b.Navigation("ShowTimeSeats");
+                });
+
             modelBuilder.Entity("Cinema.Models.Theater", b =>
                 {
                     b.Navigation("Rooms");
+                });
+
+            modelBuilder.Entity("Cinema.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("Theaters");
+
+                    b.Navigation("UserCoupons");
                 });
 #pragma warning restore 612, 618
         }

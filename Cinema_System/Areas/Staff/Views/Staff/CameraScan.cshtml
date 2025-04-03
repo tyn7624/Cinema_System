@@ -1,0 +1,255 @@
+﻿@{
+	Layout = null;
+}
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>QR Code Scanner</title>
+	<style>
+	/* Set the font family and background color for the body */
+body {
+    font-family: 'Orbitron', sans-serif; /* Sci-fi font */
+    background: radial-gradient(circle at center, #001f3f, #000); /* Sci-fi blue background */
+    color: white; /* Text color */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Center-align text inside the container */
+#container {
+    text-align: center;
+}
+
+/* Styling for the video element */
+#video {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    display: none;
+    border: 2px solid #00d4ff;
+    box-shadow: 0 0 15px #00d4ff;
+    border-radius: 10px;
+}
+
+/* Styling for the scannedImage element */
+#scannedImage {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    display: none;
+    border: 2px solid #00d4ff;
+    box-shadow: 0 0 15px #00d4ff;
+    border-radius: 10px;
+}
+
+/* Styling for the qrData element */
+#qrData {
+    font-size: 18px;
+    margin-top: 10px;
+    text-align: center;
+    display: none;
+    color: #00d4ff;
+}
+
+/* Styling for the buttons container */
+#buttons {
+    margin-top: 20px;
+}
+
+/* Sci-fi button styles */
+.button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: 2px solid #00d4ff;
+    border-radius: 5px;
+    background: transparent;
+    color: #00d4ff;
+    box-shadow: 0px 0px 10px #00d4ff;
+    transition: 0.3s ease-in-out;
+}
+
+.button:hover {
+    background: linear-gradient(45deg, #00d4ff, #007bff);
+    color: white;
+    box-shadow: 0px 0px 20px #00d4ff;
+}
+
+/* Styling for file input */
+input[type="file"] {
+    display: none;
+}
+
+/* Sci-fi labels */
+label {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    background: transparent;
+    border: 2px solid #3498db;
+    color: #3498db;
+    box-shadow: 0px 0px 10px #3498db;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+label:hover {
+    background: linear-gradient(45deg, #3498db, #1e90ff);
+    color: white;
+    box-shadow: 0px 0px 20px #3498db;
+}
+	</style>
+</head>
+
+<body>
+	<div id="container">
+		<!-- Video element for displaying webcam stream -->
+		<video id="video" playsinline></video>
+		<!-- Image element for displaying scanned QR code -->
+		<img id="scannedImage">
+		<!-- Div element for displaying QR code data -->
+		<div id="qrData"></div>
+		<!-- Div element for containing buttons -->
+		<div id="buttons">
+			<!-- Button for initiating webcam QR code scanning -->
+			<button class="button" id="webcamButton">Webcam QR code scanner</button>
+			<!-- Label for file input -->
+			@* <label for="fileInput">Scan QR code from image</label> *@
+			<!-- File input for selecting an image file -->
+			@* <input type="file" accept="image/*" id="fileInput"> *@
+		</div>
+	</div>
+	<script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+	<script>
+
+					// Generate a simple beep sound using Web Audio API
+				function playBeep() {
+			const context = new (window.AudioContext || window.webkitAudioContext)();
+			const oscillator = context.createOscillator();
+			const gainNode = context.createGain();
+
+			oscillator.type = "square"; // More noticeable beep sound
+			oscillator.frequency.setValueAtTime(1500, context.currentTime); // 1500 Hz beep
+			gainNode.gain.setValueAtTime(0.3, context.currentTime); // Adjust volume
+
+			oscillator.connect(gainNode);
+			gainNode.connect(context.destination);
+
+			oscillator.start();
+			setTimeout(() => {
+				oscillator.stop();
+			}, 500); // Beep duration (100ms)
+		}
+
+		// Get reference to the video element in the HTML document
+		const video = document.getElementById('video');
+		// Get reference to the scannedImage element in the HTML document
+		const scannedImage = document.getElementById('scannedImage');
+		// Get reference to the qrDataLabel element in the HTML document
+		const qrDataLabel = document.getElementById('qrData');
+		// Get reference to the webcamButton element in the HTML document
+		const webcamButton = document.getElementById('webcamButton');
+		// Get reference to the fileInput element in the HTML document
+		const fileInput = document.getElementById('fileInput');
+		// Function to show webcam scanning
+		function showWebcam() {
+			// Clear any previous QR code data and hide scanned image
+			qrDataLabel.textContent = ''; // Clear the text content of qrDataLabel
+			qrDataLabel.style.display = 'none'; // Hide qrDataLabel
+			scannedImage.style.display = 'none'; // Hide scannedImage
+			// Show the video element
+			video.style.display = 'block';
+			// Start webcam scanning
+			startWebcamScanning();
+		}
+		// Function to start webcam scanning
+		function startWebcamScanning() {
+			// Check if navigator supports getUserMedia
+			if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+				// Request access to the user's camera
+				navigator.mediaDevices.getUserMedia({
+					video: {
+						facingMode: 'environment'
+					}
+				}).then(function(stream) {
+					// Set the video source to the stream
+					video.srcObject = stream;
+					// Play the video
+					video.play();
+				}).catch(function(error) {
+					// If there's an error accessing the camera, display the error message
+					qrDataLabel.textContent = 'Error accessing camera: ' + error;
+				});
+			} else {
+				// If getUserMedia is not supported by the browser, display a message
+				qrDataLabel.textContent = 'getUserMedia is not supported';
+			}
+		}
+		// Continuously check for QR code in each frame
+		const intervalId = setInterval(() => {
+			// Create a canvas element to draw video frames onto it
+			const canvas = document.createElement('canvas');
+			// Get the 2D rendering context of the canvas
+			const ctx = canvas.getContext('2d');
+			// Set the dimensions of the canvas to match the video dimensions
+			canvas.width = video.videoWidth;
+			canvas.height = video.videoHeight;
+			// Draw the current frame of the video onto the canvas
+			ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+			// Get the image data of the canvas
+			const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+			// Use jsQR library to decode the QR code from the image data
+			const code = jsQR(imageData.data, imageData.width, imageData.height);
+			// If QR code is detected
+			if(code) {
+				// Extract the data encoded in the QR code
+			
+				const qrData = code.data;
+
+
+				//https://localhost:7115/Staff/Staff/ValidAuthentication?OrderID=3
+				// Display the QR code data
+				// qrDataLabel.textContent = 'QR Code Data: ' + qrData;
+				qrDataLabel.style.display = 'block';
+				// Stop the interval (stop scanning)
+				clearInterval(intervalId);
+				// Close camera stream
+				const tracks = video.srcObject.getTracks();
+				tracks.forEach(track => track.stop());
+				// Display the scanned image
+				scannedImage.src = canvas.toDataURL();
+				scannedImage.style.display = 'block';
+				// Hide the video element
+				video.style.display = 'none';
+				// If the scanned QR code is a URL
+						if (isUrl(qrData)) {
+			playBeep();  // 🔊 Play the beep first
+			setTimeout(() => {
+				window.open(qrData, '_self'); // ⏳ Delay navigation slightly
+			}, 500);  // Small delay (300ms) to allow sound to play
+		}
+
+			}
+		}, 100); // Adjust the interval as needed (milliseconds)
+		// Function to check if string is a URL
+		function isUrl(str) {
+			return str.startsWith('http://') || str.startsWith('https://');
+		}
+		
+		// Event listener for webcam button
+		webcamButton.addEventListener('click', showWebcam);
+	</script>
+</body>
+
+</html>
