@@ -13,7 +13,6 @@ using Cinema_System.Areas.Service;
 using Cinema_System.Areas.Request;
 using Microsoft.AspNetCore.SignalR;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 IConfiguration configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
@@ -48,6 +47,8 @@ builder.Services.AddRazorPages();
 //-------------------- Configure database context ---------------------------------
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    .EnableSensitiveDataLogging()  // Hiển thị giá trị tham số trong query
+    .EnableDetailedErrors()       // Hiển thị thông báo lỗi chi tiết từ SQL Server
 );
 
 //-------------------------------------- SIGNAL IR   -------------------------------------------------

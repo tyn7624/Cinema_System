@@ -67,9 +67,9 @@ namespace Cinema.DataAccess.DbInitializer
 
                 _userManager.CreateAsync(new ApplicationUser
                 {
-                    UserName = "staff@gmail.com",
-                    Email = "staff@gmail.com",
-                    FullName = "Staff",
+                    UserName = "admin@dotnet.com",
+                    Email = "admin@dotnet.com",
+                    FullName = "Neko",
                     PhoneNumber = "1112223333",
                     EmailConfirmed = true,
                     PhoneNumberConfirmed = true

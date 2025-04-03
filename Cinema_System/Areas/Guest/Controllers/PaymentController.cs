@@ -36,14 +36,16 @@ namespace Cinema_System.Areas
         private readonly PayOS _payOS;
         private readonly ApplicationDbContext _context;
         private readonly IUnitOfWork _unitOfWork;
-
-        public PaymentController(PayOSService payOSService, PayOS payOS, ApplicationDbContext context
-           )
+        private readonly IEmailSender _emailSender;
+        //private readonly UserManager<IdentityUser> _userManager;
+        public PaymentController(PayOSService payOSService, PayOS payOS, ApplicationDbContext context,
+            IEmailSender emailSender)
         {
             _payOSService = payOSService;
             _payOS = payOS;
             _context = context;
-
+            _emailSender = emailSender;
+            //_userManager = userManager;
         }
 
         [HttpPost]
@@ -57,16 +59,17 @@ namespace Cinema_System.Areas
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             string userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (userId == null)
+            if (userId == null && request.Guest != null)
             {
                 var newGuestUser = new ApplicationUser // Ensure this matches your user model
                 {
                     Id = Guid.NewGuid().ToString(), // Generate a unique ID
                     UserName = "Guest_" + Guid.NewGuid().ToString().Substring(0, 8), // Random username
-                    Email = null, // Guest users may not have an email
+                    Email = request.Guest.email, // Guest users may not have an email
                     NormalizedUserName = null,
                     NormalizedEmail = null,
-                    PhoneNumber = null,
+                    PhoneNumber = request.Guest.phone,
+                    FulName = request.Guest.fullname,
                     EmailConfirmed = false
                 };
 
@@ -144,12 +147,6 @@ namespace Cinema_System.Areas
                 items.Add(new ItemData(coupon.Code, 1, couponPrice));
             }
 
-            if(request.Guest != null)
-            {
-                ApplicationUser user = new ApplicationUser { FullName = request.Guest.fullname, Email = request.Guest.email, PhoneNumber = request.Guest.phone};
-                _context.ApplicationUsers.Add(user);
-                await _context.SaveChangesAsync();
-            }
             // Gọi dịch vụ PayOS để tạo thanh toán
             var response = await _payOSService.CreatePaymentAsync(request.TotalAmount + couponPrice, orderId, items, _payOS);
 
@@ -169,7 +166,7 @@ namespace Cinema_System.Areas
         public IActionResult CancelUrl(long orderCode)
         {
             var order = _context.OrderTables.FirstOrDefault(o => o.OrderID == orderCode);
-            //var seat = _context.showTimeSeats.FirstOrDefault
+
             if (order == null)
             {
                 return NotFound(new { message = "Order không tồn tại" });
@@ -183,7 +180,6 @@ namespace Cinema_System.Areas
             return View();
         }
 
-        // Trang thành công
         [HttpGet]
         public async Task<IActionResult>ReturnUrl(long orderCode)
         {

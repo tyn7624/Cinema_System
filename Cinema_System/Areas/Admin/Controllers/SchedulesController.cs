@@ -41,7 +41,7 @@ namespace Cinema_System.Areas.Admin.Controllers
         //        {
         //            RoomNumber = roomNumber,
         //            CinemaID = cinemaId,
-                    
+
         //        };
 
         //        _unitOfWork.Room.Add(newRoom);

@@ -15,6 +15,8 @@
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
 </head>
 <body>
+    <header class="header">
+<body>
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-1" data-bs-theme="dark" style="height: 80px;">
             <div class="container-fluid">
@@ -47,6 +49,7 @@
                             <i class="fa-solid fa-cart-shopping"></i><a class="nav-link small-text" asp-area="Guest" asp-controller="Cart" asp-action="Index"></a>
 
                             
+                            </a>
                         </li>
                       
                         @if (User.IsInRole("Staff"))
@@ -62,7 +65,6 @@
                     <partial name="_LoginPartial" />
                 </div>
             </div>
-        </nav>
     </header>
 
     <div class="container">
@@ -71,7 +73,7 @@
             @RenderBody()
         </main>
     </div>
-
+            @RenderBody()
     @* <!-- Floating Chat Icon --> *@
     @* <div id="chat-icon" class="chat-icon"> *@
     @*     <i class="fa-solid fa-comments"></i> *@
@@ -85,15 +87,15 @@
 
     <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
 
+     @*          &copy; 2025 - Cinema_System - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>  *@
+     @*      </div>   *@
+     @*  </footer>  *@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="//cdn.datatables.net/2.1.8/js/dataTables.min.js" asp-append-version="true"></script>
-    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
     @* <script> *@
     @*     // Basic toggle for chat icon *@
@@ -127,6 +129,9 @@
             }
     </style>
 
+    <script src="//cdn.datatables.net/2.1.8/js/dataTables.min.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

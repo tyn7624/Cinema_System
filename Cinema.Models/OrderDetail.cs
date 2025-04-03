@@ -25,7 +25,8 @@ namespace Cinema.Models
         [NotMapped]
         public DateTime AddedTime { get; set; } = DateTime.Now; // Dùng cho timeout session
 
-        public int? ProductID { get; set; } // Nullable if the order is for tickets only
+        [Column("ProductID")] // Đảm bảo tên cột khớp với database
+        public int? ProductID { get; set; }     // Cho phép ProductID nullable để hỗ trợ đơn hàng chỉ có vé xem phim
 
         public int? ShowtimeSeatID { get; set; } // Nullable if the order is for products only
 

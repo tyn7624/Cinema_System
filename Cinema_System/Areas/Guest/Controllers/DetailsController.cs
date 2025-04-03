@@ -35,4 +35,4 @@ namespace Cinema_System.Areas.Guest.Controllers
         }
     }
 
-}
+
