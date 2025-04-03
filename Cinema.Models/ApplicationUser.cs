@@ -14,5 +14,10 @@ namespace Cinema.Models
 
         public string? UserImage { get; set; }
         public int Points { get; set; } = 0;
+        [InverseProperty("Admin")]
+        public virtual ICollection<Theater> Theaters { get; set; } = new List<Theater>();
+
+        [InverseProperty("User")]
+        public virtual ICollection<UserCoupon> UserCoupons { get; set; } = new List<UserCoupon>();
     }
 }
