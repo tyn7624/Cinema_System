@@ -131,6 +131,7 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 // Add scoped services
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 //builder.Services.AddScoped<UserManager<ApplicationUser>>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 //builder.Services.AddScoped<RoleManager<IdentityRole>>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IDbInitializer, DbInitializer>();

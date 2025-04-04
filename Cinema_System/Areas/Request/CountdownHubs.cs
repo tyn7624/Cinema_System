@@ -46,21 +46,15 @@ namespace Cinema_System.Areas.Request
 
         public void SelectSeat(int seatId)
         {
-            lock (lockObj)
-            {
                 if (!selectedSeats.Contains(seatId))
                 {
                     selectedSeats.Add(seatId);
                 }
-            }
         }
 
         public void DeselectSeat(int seatId)
         {
-            lock (lockObj)
-            {
                 selectedSeats.Remove(seatId);
-            }
         }
 
         private void ResetCountdown()

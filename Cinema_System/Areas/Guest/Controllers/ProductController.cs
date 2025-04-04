@@ -78,11 +78,13 @@ namespace Cinema_System.Areas.Guest.Controllers
 
                     if (order == null)
                     {
+                        long orderCode = long.Parse(DateTime.Now.ToString("yyyyMMddHHmmss"));
                         order = new OrderTable
                         {
+                            OrderID = orderCode,
                             UserID = userId,
                             Status = OrderStatus.Pending,
-                            CreatedAt = DateTime.Now
+                            CreatedAt = DateTime.UtcNow
                         };
                         _unitOfWork.OrderTable.Add(order);
                         await _unitOfWork.SaveAsync();

@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.Authentication;
 using System.Net.Mail;
 using System.Net;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc;
+using static iTextSharp.text.pdf.AcroFields;
 
 namespace Cinema_System.Areas
 {
@@ -149,6 +150,43 @@ namespace Cinema_System.Areas
 
             // Gọi dịch vụ PayOS để tạo thanh toán
             var response = await _payOSService.CreatePaymentAsync(request.TotalAmount + couponPrice, orderId, items, _payOS);
+
+            if (response.error == 0)
+            {
+                // test returnUrl
+
+                return Json(new { paymentUrl = ((CreatePaymentResult)response.data).checkoutUrl });
+            }
+
+            return BadRequest("Payment failed.");
+        }
+
+        [HttpPost("/products")]
+        public async Task<IActionResult> CreatePaymentProduct([FromBody] PaymentRequest request)
+        {
+            var items = new List<ItemData>();
+            var couponPrice = 0;
+            Coupon coupon = _context.Coupons.FirstOrDefault(c => c.Code == request.Coupon);
+            OrderTable orderTable = _context.OrderTables.FirstOrDefault(o => o.OrderID == request.OrderCode);
+
+            foreach (var food in request.Items)
+            {
+                items.Add(new ItemData(food.name, food.quantity, food.price));
+
+            }
+
+            if (orderTable == null)
+            {
+                return BadRequest("Payment failed.");
+            }
+
+            if (coupon != null)
+            {
+                couponPrice -= (int)(request.TotalAmount * coupon.DiscountPercentage);
+                items.Add(new ItemData(coupon.Code, 1, couponPrice));
+            }
+
+            var response = await _payOSService.CreatePaymentAsync(request.TotalAmount + couponPrice, orderTable.OrderID, items, _payOS);
 
             if (response.error == 0)
             {
